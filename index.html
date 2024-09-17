@@ -117,6 +117,7 @@
                 <th>Loại Đặt Cược</th>
                 <th>Số Tiền</th>
                 <th>Kết Quả</th>
+                <th>Trạng Thái</th> <!-- Thêm cột trạng thái -->
             </tr>
         </thead>
         <tbody>
@@ -151,13 +152,14 @@
         }
 
         // Hàm để thêm kết quả vào bảng lịch sử
-        function addToHistory(round, betType, betAmount, result) {
+        function addToHistory(round, betType, betAmount, result, status) {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${round}</td>
                 <td>${betType}</td>
                 <td>${betAmount}</td>
                 <td>${result}</td>
+                <td>${status}</td> <!-- Thêm cột trạng thái -->
             `;
             historyTableBody.appendChild(row);
         }
@@ -204,11 +206,13 @@
                         `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Chúc mừng bạn đã thắng!` : 
                         `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Rất tiếc, bạn đã thua.`;
 
+                    const status = selectedBet === outcome ? 'Thắng' : 'Thua'; // Xác định trạng thái
+
                     // Hiển thị kết quả
                     resultText.textContent = `${result} Số tiền bạn đặt cược là ${betAmount} đồng.`;
 
                     // Thêm kết quả vào bảng lịch sử
-                    addToHistory(round, selectedBet, betAmount, `${total} (${outcome})`);
+                    addToHistory(round, selectedBet, betAmount, `${total} (${outcome})`, status);
 
                     // Làm mới ô nhập liệu
                     amountInput.value = '';
