@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài Xỉu Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #game {
+            display: inline-block;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #f0f0f0;
+            color: #000;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .option-button:hover {
+            background-color: #ddd;
+        }
+
+        .selected {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #4CAF50;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input {
+            padding: 5px;
+            font-size: 16px;
+            width: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #countdown {
+            font-size: 20px;
+            color: #ff0000;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tài Xỉu Game</h1>
+    <div id="game">
+        <div>
+            <button class="option-button" id="taiButton">Tài</button>
+            <button class="option-button" id="xiuButton">Xỉu</button>
+        </div>
+        <br>
+        <label for="amount">Số tiền đặt cược:</label>
+        <input type="number" id="amount" min="1" placeholder="Nhập số tiền" />
+        <br><br>
+        <button id="rollButton">Quay</button>
+        <p id="result"></p>
+        <p id="countdown">Thời gian còn lại: 3 giây</p>
+    </div>
+    <script>
+        // Lấy các phần tử HTML
+        const taiButton = document.getElementById('taiButton');
+        const xiuButton = document.getElementById('xiuButton');
+        const amountInput = document.getElementById('amount');
+        const rollButton = document.getElementById('rollButton');
+        const resultText = document.getElementById('result');
+        const countdownText = document.getElementById('countdown');
+
+        let selectedBet = ''; // Lưu tùy chọn của người dùng
+
+        // Hàm để thiết lập lựa chọn của người dùng
+        function setBet(choice) {
+            selectedBet = choice;
+            // Xóa lớp 'selected' khỏi tất cả các nút
+            taiButton.classList.remove('selected');
+            xiuButton.classList.remove('selected');
+            // Thêm lớp 'selected' vào nút được chọn
+            if (choice === 'tai') {
+                taiButton.classList.add('selected');
+            } else if (choice === 'xiu') {
+                xiuButton.classList.add('selected');
+            }
+        }
+
+        // Hàm để "quay" trò chơi
+        function rollGame() {
+            // Kiểm tra nếu người dùng chưa chọn Tài hoặc Xỉu
+            if (selectedBet === '') {
+                resultText.textContent = 'Vui lòng chọn Tài hoặc Xỉu.';
+                return;
+            }
+
+            // Lấy số tiền đặt cược
+            const betAmount = parseFloat(amountInput.value);
+
+            // Kiểm tra số tiền đặt cược hợp lệ
+            if (isNaN(betAmount) || betAmount <= 0) {
+                resultText.textContent = 'Vui lòng nhập số tiền hợp lệ.';
+                return;
+            }
+
+            // Hiển thị thông báo đang xử lý
+            resultText.textContent = 'Đang xử lý...';
+            countdownText.textContent = 'Thời gian còn lại: 3 giây';
+
+            // Thay đổi countdownText mỗi giây và sau đó hiển thị kết quả
+            let timeLeft = 3; // Thời gian đếm ngược (3 giây)
+            const countdownInterval = setInterval(() => {
+                timeLeft -= 1;
+                countdownText.textContent = `Thời gian còn lại: ${timeLeft} giây`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+
+                    // Tạo một kết quả ngẫu nhiên cho trò chơi
+                    const dice1 = Math.floor(Math.random() * 6) + 1;
+                    const dice2 = Math.floor(Math.random() * 6) + 1;
+                    const dice3 = Math.floor(Math.random() * 6) + 1;
+
+                    const total = dice1 + dice2 + dice3;
+                    const outcome = total > 9 ? 'tai' : 'xiu';
+
+                    // Hiển thị kết quả
+                    if (selectedBet === outcome) {
+                        resultText.textContent = `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Chúc mừng bạn đã thắng! Số tiền bạn đặt cược là ${betAmount} đồng.`;
+                    } else {
+                        resultText.textContent = `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Rất tiếc, bạn đã thua. Số tiền bạn đặt cược là ${betAmount} đồng.`;
+                    }
+
+                    // Làm mới ô nhập liệu
+                    amountInput.value = '';
+                }
+            }, 1000); // Cập nhật mỗi giây
+        }
+
+        // Thêm sự kiện click cho các nút lựa chọn
+        taiButton.addEventListener('click', () => setBet('tai'));
+        xiuButton.addEventListener('click', () => setBet('xiu'));
+
+        // Thêm sự kiện click cho nút quay
+        rollButton.addEventListener('click', rollGame);
+    </script>
+</body>
+</html>
