@@ -73,6 +73,25 @@
             color: #ff0000;
             margin-top: 10px;
         }
+
+        #historyTable {
+            margin-top: 30px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #historyTable, #historyTable th, #historyTable td {
+            border: 1px solid black;
+        }
+
+        #historyTable th, #historyTable td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        #historyTable th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -90,6 +109,20 @@
         <p id="result"></p>
         <p id="countdown">Thời gian còn lại: 3 giây</p>
     </div>
+    <h2>Lịch sử Đặt Cược</h2>
+    <table id="historyTable">
+        <thead>
+            <tr>
+                <th>Vòng</th>
+                <th>Loại Đặt Cược</th>
+                <th>Số Tiền</th>
+                <th>Kết Quả</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+        </tbody>
+    </table>
     <script>
         // Lấy các phần tử HTML
         const taiButton = document.getElementById('taiButton');
@@ -98,8 +131,10 @@
         const rollButton = document.getElementById('rollButton');
         const resultText = document.getElementById('result');
         const countdownText = document.getElementById('countdown');
+        const historyTableBody = document.querySelector('#historyTable tbody');
 
         let selectedBet = ''; // Lưu tùy chọn của người dùng
+        let round = 1; // Biến để theo dõi vòng cược
 
         // Hàm để thiết lập lựa chọn của người dùng
         function setBet(choice) {
@@ -113,6 +148,18 @@
             } else if (choice === 'xiu') {
                 xiuButton.classList.add('selected');
             }
+        }
+
+        // Hàm để thêm kết quả vào bảng lịch sử
+        function addToHistory(round, betType, betAmount, result) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${round}</td>
+                <td>${betType}</td>
+                <td>${betAmount}</td>
+                <td>${result}</td>
+            `;
+            historyTableBody.appendChild(row);
         }
 
         // Hàm để "quay" trò chơi
@@ -153,15 +200,22 @@
                     const total = dice1 + dice2 + dice3;
                     const outcome = total > 9 ? 'tai' : 'xiu';
 
+                    const result = selectedBet === outcome ? 
+                        `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Chúc mừng bạn đã thắng!` : 
+                        `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Rất tiếc, bạn đã thua.`;
+
                     // Hiển thị kết quả
-                    if (selectedBet === outcome) {
-                        resultText.textContent = `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Chúc mừng bạn đã thắng! Số tiền bạn đặt cược là ${betAmount} đồng.`;
-                    } else {
-                        resultText.textContent = `Bạn đã chọn ${selectedBet} và kết quả là ${total} (${outcome}). Rất tiếc, bạn đã thua. Số tiền bạn đặt cược là ${betAmount} đồng.`;
-                    }
+                    resultText.textContent = `${result} Số tiền bạn đặt cược là ${betAmount} đồng.`;
+
+                    // Thêm kết quả vào bảng lịch sử
+                    addToHistory(round, selectedBet, betAmount, `${total} (${outcome})`);
 
                     // Làm mới ô nhập liệu
                     amountInput.value = '';
+                    selectedBet = ''; // Reset lựa chọn
+                    taiButton.classList.remove('selected');
+                    xiuButton.classList.remove('selected');
+                    round++; // Tăng vòng cược
                 }
             }, 1000); // Cập nhật mỗi giây
         }
